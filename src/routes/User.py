@@ -30,12 +30,12 @@ def add_user():
         return jsonify({'Message': str(e)}), 500
 
 @users_bp.route('/login/<email>&<password>')
-def login_user(email, password):
+def login_user(email,password):
     try:
-        user = UserConfirm(email, password)
-        affected_row = UserModel.login_user(user)
+        
+        affected_row = UserModel.login_user(email, password)
 
-        if affected_row == 1:
+        if affected_row != None:
             return jsonify({"Message": "Welcome, user"})
         else:
             return jsonify({"Message":"User or password incorrect"}),404
