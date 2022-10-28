@@ -22,13 +22,13 @@ class UserModel():
             raise Exception(e)
 
     @classmethod
-    def login_user(self, user):
+    def login_user(self, email, password):
         try:
             connection = get_connection()
 
             with connection.cursor() as cursor:
                 cursor.execute("""SELECT "Correo", "Contraseña" FROM usuarios
-                    WHERE "Correo" = %s AND "Contraseña"= %s """, (user.email, user.password))
+                    WHERE "Correo" = %s AND "Contraseña"= %s """, (email, password))
 
                 row = cursor.fetchone()
                 user = None
