@@ -49,7 +49,7 @@ class NewsModels():
 
             with connection.cursor() as cursor:
                 cursor.execute("""SELECT * FROM noticias 
-                                WHERE "Título"=%s """,
+                                WHERE "ID"=%s """,
                                 (id,))
             
                 row = cursor.fetchone()

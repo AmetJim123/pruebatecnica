@@ -12,6 +12,7 @@ if __name__ == '__main__':
     app.config.from_object(config['development'])
 
     # Blueprint
+    app.register_blueprint(News.health_bp, url_prefix='/health')
     app.register_blueprint(User.users_bp, url_prefix="/api/users")
     app.register_blueprint(News.news_bp, url_prefix ="/api/news")
     app.register_blueprint(Comment.comment_bp, url_prefix = "/api/comments")

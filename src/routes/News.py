@@ -1,14 +1,23 @@
 
 from flask import Blueprint, jsonify, request
 import uuid
-#Entities
+from decouple import config
+import traceback
 
+#Entities
 from models.entities.noticia import Noticia
 
 #Models
 from models.NewsModels import NewsModels
 
 news_bp = Blueprint('news_bp', __name__)
+health_bp = Blueprint('health_bp', __name__)
+
+@health_bp.route('/health', methods=['GET'])
+def health():
+    return jsonify({"status": "ok",
+                    "message": "News service is running",
+                    'environment': config('ENVIRONMENT')})
 
 @news_bp.route("/add", methods=['POST'])
 def add_user():
@@ -32,10 +41,11 @@ def get_new(id):
     try:
         news = NewsModels.get_new(id)
         if news != None:
-            return jsonify({news})
+            return jsonify(news)
         else:
             return jsonify({'Message': 'News not found'}), 404
     except Exception as e:
+        print(traceback.print_exc())
         return jsonify({'Message': str(e)},500)
 
 @news_bp.route("/all_news")
@@ -56,7 +66,8 @@ def update_new(id):
         affected_rows = NewsModels.update_news(news)
         
         if affected_rows == 1:
-            return jsonify(news.id)
+            return jsonify({'Message': 'News updated susccessfuly',
+                            'News': news.to_json()})
         else:
             return jsonify({'Message': 'News not found'}), 404
     except Exception as e:
