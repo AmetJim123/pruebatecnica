@@ -13,7 +13,7 @@ from models.NewsModels import NewsModels
 news_bp = Blueprint('news_bp', __name__)
 health_bp = Blueprint('health_bp', __name__)
 
-@health_bp.route('/health', methods=['GET'])
+@health_bp.route('/', methods=['GET'])
 def health():
     return jsonify({"status": "ok",
                     "message": "News service is running",

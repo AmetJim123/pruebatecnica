@@ -1,6 +1,6 @@
 from database.db import get_connection
 from .entities.User import User, UserConfirmation
-from lib.generate_token import generate_token, decode_token
+from lib_2.authorizer import generate_token, decode_token
 import traceback
 
 
@@ -14,7 +14,7 @@ class UserModel():
             connection = get_connection()
 
             with connection.cursor() as cursor:
-                cursor.execute("""INSERT INTO usuarios("Nombre Completo", "Correo", "Contraseña", "Dirección", "Teléfono", "Fecha de nacimiento")
+                cursor.execute("""INSERT INTO usuarios("nombre_completo", "correo", "contraseña", "dirección", "teléfono", "fecha_de_nacimiento, token")
                                     VALUES(%s, %s, %s,%s,%s,%s)""", (user.full_name, user.email, user.password, user.address, user.phone, user.birth_date))
 
                 affected_rows = cursor.rowcount
@@ -32,9 +32,8 @@ class UserModel():
             connection = get_connection()
 
             with connection.cursor() as cursor:
-                password = generate_token(user.password, user.email)
-                cursor.execute("""SELECT "Correo", "Contraseña" FROM usuarios
-                    WHERE "Correo" = %s AND "Contraseña" = %s """, (user.email, password))
+                cursor.execute("""SELECT "correo", "contraseña" FROM usuarios
+                    WHERE "correo" = %s AND "contraseña" = %s """, (user.email, user.password))
 
                 row = cursor.fetchone()
                 user = None
@@ -42,10 +41,22 @@ class UserModel():
                     email = row[0]
                     password = row[1]
                     password = decode_token(password, email)
+
                     user = UserConfirmation(email,password)
+                    token = generate_token(password, email)
+                    user.token = token
                     user = user.to_json()
 
             connection.close()
+            if token:
+                connection = get_connection()
+                with connection.cursor() as cursor:
+                    cursor.execute("""UPDATE usuarios
+                        SET token = %s
+                        WHERE "correo" = %s""", (token, email))
+                    connection.commit()
+            else:
+                return None
             return user
         except Exception as e:
             print(traceback.format_exc())
